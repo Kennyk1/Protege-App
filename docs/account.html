@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<title>Account — SignalsBetIQ</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<script>(function(s){s.dataset.zone='9272446',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--bg:#040810;--card:#0a1120;--border:rgba(0,255,136,0.08);--green:#00ff88;--red:#ff3a3a;--blue:#0099ff;--gold:#ffc107;--text:#e0e8ff;--muted:#4a5a7a;}
+html,body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100%;}
+.grid-bg{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(0,255,136,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,136,0.02) 1px,transparent 1px);background-size:60px 60px;}
+
+.topbar{position:sticky;top:0;z-index:10;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:rgba(4,8,16,0.97);border-bottom:1px solid var(--border);}
+.topbar-left{display:flex;align-items:center;gap:10px;}
+.back-btn{width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,0.04);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;-webkit-tap-highlight-color:transparent;}
+.topbar-title{font-size:16px;font-weight:700;letter-spacing:-0.01em;}
+.hamburger{width:36px;height:36px;border-radius:8px;background:rgba(255,255,255,0.04);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+.drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:150;display:none;backdrop-filter:blur(4px);}
+.drawer-overlay.show{display:block;}
+.drawer{position:fixed;top:0;right:-280px;width:280px;height:100%;background:#070d18;border-left:1px solid var(--border);z-index:160;transition:right 0.3s ease;}
+.drawer.open{right:0;}
+.drawer-header{padding:20px 20px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.drawer-logo{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.08em;}
+.drawer-close{width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,0.04);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.drawer-user{padding:16px 20px;border-bottom:1px solid var(--border);}
+.drawer-name{font-size:15px;font-weight:700;margin-bottom:4px;}
+.drawer-email{font-size:12px;color:var(--muted);}
+.drawer-links{padding:12px 0;}
+.drawer-link{display:flex;align-items:center;gap:14px;padding:14px 20px;font-size:14px;font-weight:600;color:var(--muted);text-decoration:none;transition:all 0.2s;border:none;background:none;font-family:'Syne',sans-serif;width:100%;letter-spacing:0.02em;cursor:pointer;}
+.drawer-link.active{color:var(--green);border-left:2px solid var(--green);}
+.drawer-divider{height:1px;background:var(--border);margin:8px 0;}
+.drawer-logout{color:var(--red)!important;}
+
+.content{padding:16px;max-width:480px;margin:0 auto;padding-bottom:40px;position:relative;z-index:1;}
+
+/* PROFILE HERO */
+.profile-hero{background:linear-gradient(135deg,rgba(0,255,136,0.06),rgba(0,153,255,0.04));border:1px solid rgba(0,255,136,0.12);border-radius:16px;padding:24px;margin-bottom:14px;display:flex;align-items:center;gap:16px;}
+.profile-avatar{width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,rgba(0,255,136,0.2),rgba(0,153,255,0.15));border:2px solid rgba(0,255,136,0.3);display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;color:var(--green);flex-shrink:0;}
+.profile-info{flex:1;}
+.profile-name{font-size:18px;font-weight:700;margin-bottom:4px;}
+.profile-email{font-size:12px;color:var(--muted);margin-bottom:8px;}
+.profile-plan{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:0.05em;}
+.plan-free{background:rgba(74,90,122,0.2);color:var(--muted);border:1px solid rgba(74,90,122,0.3);}
+.plan-premium{background:rgba(255,193,7,0.1);color:var(--gold);border:1px solid rgba(255,193,7,0.25);}
+
+/* PLAN CARD */
+.plan-card{border-radius:14px;padding:20px;margin-bottom:14px;position:relative;overflow:hidden;}
+.plan-card.free{background:var(--card);border:1px solid var(--border);}
+.plan-card.premium{background:linear-gradient(135deg,rgba(255,193,7,0.08),rgba(255,193,7,0.03));border:1px solid rgba(255,193,7,0.2);}
+.plan-label{font-size:11px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px;}
+.plan-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:0.04em;margin-bottom:8px;}
+.plan-expires{font-size:12px;color:var(--muted);margin-bottom:16px;font-family:'JetBrains Mono',monospace;}
+.plan-features{margin-bottom:16px;}
+.plan-feature{display:flex;align-items:center;gap:8px;font-size:13px;padding:5px 0;color:var(--muted);}
+.plan-feature.active{color:var(--text);}
+.plan-feature svg{flex-shrink:0;}
+.upgrade-btn{width:100%;padding:14px;border-radius:10px;background:linear-gradient(135deg,var(--green),#00cc70);border:none;color:#000;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:0.06em;transition:opacity 0.2s;}
+.upgrade-btn:active{opacity:0.8;}
+.upgrade-btn.active-plan{background:rgba(255,193,7,0.1);color:var(--gold);border:1px solid rgba(255,193,7,0.2);cursor:default;}
+
+/* INFO CARDS */
+.info-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:14px;}
+.info-label{font-size:11px;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:14px;}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+.info-row:last-child{border-bottom:none;padding-bottom:0;}
+.info-key{font-size:13px;color:var(--muted);}
+.info-val{font-size:13px;font-weight:600;font-family:'JetBrains Mono',monospace;color:var(--text);}
+
+/* DANGER ZONE */
+.danger-card{background:rgba(255,58,58,0.04);border:1px solid rgba(255,58,58,0.1);border-radius:14px;padding:18px;margin-bottom:14px;}
+.danger-label{font-size:11px;color:var(--red);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:14px;}
+.danger-btn{width:100%;padding:13px;border-radius:10px;background:transparent;border:1px solid rgba(255,58,58,0.2);color:var(--red);font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:0.04em;transition:background 0.2s;}
+.danger-btn:active{background:rgba(255,58,58,0.08);}
+
+/* UPGRADE MODAL */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,0.85);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;backdrop-filter:blur(4px);}
+.modal.show{display:flex;}
+.modal-box{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:28px;width:100%;max-width:360px;}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:0.04em;margin-bottom:6px;}
+.modal-sub{font-size:13px;color:var(--muted);margin-bottom:20px;line-height:1.5;}
+.modal-price{font-family:'JetBrains Mono',monospace;font-size:36px;font-weight:600;color:var(--green);}
+.modal-period{font-size:12px;color:var(--muted);margin-bottom:20px;}
+.modal-input{width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:13px 16px;color:var(--text);font-family:'Syne',sans-serif;font-size:14px;outline:none;margin-bottom:10px;}
+.modal-input:focus{border-color:rgba(0,255,136,0.4);}
+.modal-input::placeholder{color:var(--muted);}
+.modal-hint{font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.6;}
+.modal-btn{width:100%;padding:14px;border-radius:8px;background:var(--green);border:none;color:#000;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:0.06em;margin-bottom:8px;}
+.modal-cancel{width:100%;padding:10px;border-radius:8px;background:transparent;border:1px solid rgba(255,255,255,0.08);color:var(--muted);font-family:'Syne',sans-serif;font-size:13px;cursor:pointer;}
+
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(60px);background:#0a1120;border:1px solid var(--border);color:var(--text);padding:10px 18px;border-radius:8px;font-size:13px;font-weight:600;transition:transform 0.3s;z-index:300;white-space:nowrap;max-width:88vw;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.toast.success{border-color:rgba(0,255,136,0.3);color:var(--green);}
+.toast.error{border-color:rgba(255,58,58,0.3);color:var(--red);}
+.spinner{width:16px;height:16px;border:2px solid rgba(0,0,0,0.3);border-top-color:#000;border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block;}
+@keyframes spin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-header">
+    <div class="drawer-logo">SIGNALSBETIQ</div>
+    <div class="drawer-close" onclick="closeDrawer()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </div>
+  </div>
+  <div class="drawer-user">
+    <div class="drawer-name" id="drawerName">Loading...</div>
+    <div class="drawer-email" id="drawerEmail"></div>
+  </div>
+  <div class="drawer-links">
+    <a href="dashboard.html" class="drawer-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Signals
+    </a>
+    <a href="community.html" class="drawer-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Community
+    </a>
+    <a href="wallet.html" class="drawer-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Wallet
+    </a>
+    <a href="referral.html" class="drawer-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Referral
+    </a>
+    <a href="account.html" class="drawer-link active">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Account
+    </a>
+    <div class="drawer-divider"></div>
+    <button class="drawer-link drawer-logout" onclick="logout()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Logout
+    </button>
+  </div>
+</div>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="back-btn" onclick="history.back()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </div>
+    <div class="topbar-title">Account</div>
+  </div>
+  <div class="hamburger" onclick="openDrawer()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- PROFILE HERO -->
+  <div class="profile-hero">
+    <div class="profile-avatar" id="profileAvatar">?</div>
+    <div class="profile-info">
+      <div class="profile-name" id="profileName">Loading...</div>
+      <div class="profile-email" id="profileEmail"></div>
+      <div class="profile-plan plan-free" id="profilePlan">FREE</div>
+    </div>
+  </div>
+
+  <!-- PLAN CARD -->
+  <div class="plan-card free" id="planCard">
+    <div class="plan-label">Current Plan</div>
+    <div class="plan-title" id="planTitle">FREE</div>
+    <div class="plan-expires" id="planExpires" style="display:none;"></div>
+    <div class="plan-features">
+      <div class="plan-feature active"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>3 free signals daily</div>
+      <div class="plan-feature active"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>Community access</div>
+      <div class="plan-feature active"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>Win rate stats</div>
+      <div class="plan-feature" id="premiumFeature1"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Unlimited signals</div>
+      <div class="plan-feature" id="premiumFeature2"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>Casino + Aviator signals</div>
+    </div>
+    <button class="upgrade-btn" id="upgradeBtn" onclick="showUpgrade()">⚡ GO PREMIUM — $1/WEEK</button>
+  </div>
+
+  <!-- PROFILE INFO -->
+  <div class="info-card">
+    <div class="info-label">Profile Details</div>
+    <div class="info-row"><span class="info-key">Name</span><span class="info-val" id="infoName">—</span></div>
+    <div class="info-row"><span class="info-key">Email</span><span class="info-val" id="infoEmail">—</span></div>
+    <div class="info-row"><span class="info-key">Phone</span><span class="info-val" id="infoPhone">—</span></div>
+    <div class="info-row"><span class="info-key">Country</span><span class="info-val" id="infoCountry">—</span></div>
+    <div class="info-row"><span class="info-key">Member since</span><span class="info-val" id="infoJoined">—</span></div>
+  </div>
+
+  <!-- DANGER -->
+  <div class="danger-card">
+    <div class="danger-label">Account Actions</div>
+    <button class="danger-btn" onclick="logout()">Logout from SignalsBetIQ</button>
+  </div>
+
+</div>
+
+<!-- UPGRADE MODAL -->
+<div class="modal" id="upgradeModal">
+  <div class="modal-box">
+    <div class="modal-title">GO PREMIUM ⚡</div>
+    <div class="modal-sub">Unlock unlimited signals across all sports and casino.</div>
+    <div class="modal-price">$1 <span style="font-size:18px;color:var(--muted);">/ ₦1,000</span></div>
+    <div class="modal-period">per week · cancel anytime</div>
+    <input type="text" class="modal-input" id="payRef" placeholder="Enter payment reference / transaction ID"/>
+    <div class="modal-hint">
+      Pay $1 USD or ₦1,000 NGN and enter your transaction reference above.<br/>
+      <strong style="color:var(--green);">Contact us on WhatsApp for payment details.</strong>
+    </div>
+    <button class="modal-btn" id="upgradeSubmitBtn" onclick="submitUpgrade()">ACTIVATE PREMIUM</button>
+    <button class="modal-cancel" onclick="closeUpgrade()">Cancel</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'https://sample-api-1-ryj7.onrender.com';
+const token = localStorage.getItem('betiq_token');
+if (!token) window.location.href = 'login.html';
+
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+async function api(ep, method='GET', body=null) {
+  const opts = { method, headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` } };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(`${API}${ep}`, opts);
+  return res.json();
+}
+
+function openDrawer() {
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('drawerOverlay').classList.add('show');
+}
+function closeDrawer() {
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('drawerOverlay').classList.remove('show');
+}
+
+async function loadUser() {
+  try {
+    const data = await api('/api/bet/me');
+    if (!data.success) { logout(); return; }
+    const u = data.user;
+
+    document.getElementById('profileAvatar').textContent = u.name[0].toUpperCase();
+    document.getElementById('profileName').textContent = u.name;
+    document.getElementById('profileEmail').textContent = u.email || u.phone || '';
+    document.getElementById('drawerName').textContent = u.name;
+    document.getElementById('drawerEmail').textContent = u.email || u.phone || '';
+    document.getElementById('infoName').textContent = u.name;
+    document.getElementById('infoEmail').textContent = u.email || '—';
+    document.getElementById('infoPhone').textContent = u.phone || '—';
+    document.getElementById('infoCountry').textContent = u.country || '—';
+
+    if (u.is_premium) {
+      const planCard = document.getElementById('planCard');
+      planCard.className = 'plan-card premium';
+      document.getElementById('planTitle').textContent = 'PREMIUM';
+      document.getElementById('profilePlan').textContent = 'PREMIUM';
+      document.getElementById('profilePlan').className = 'profile-plan plan-premium';
+
+      if (u.plan_expires) {
+        const exp = new Date(u.plan_expires);
+        document.getElementById('planExpires').textContent = `Expires: ${exp.toLocaleDateString('en-NG',{day:'numeric',month:'short',year:'numeric'})}`;
+        document.getElementById('planExpires').style.display = 'block';
+      }
+
+      document.getElementById('premiumFeature1').className = 'plan-feature active';
+      document.getElementById('premiumFeature1').innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>Unlimited signals`;
+      document.getElementById('premiumFeature2').className = 'plan-feature active';
+      document.getElementById('premiumFeature2').innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>Casino + Aviator signals`;
+
+      const btn = document.getElementById('upgradeBtn');
+      btn.textContent = '✓ PREMIUM ACTIVE';
+      btn.className = 'upgrade-btn active-plan';
+      btn.onclick = null;
+    }
+  } catch(e) { showToast('Failed to load profile', 'error'); }
+}
+
+function showUpgrade() { document.getElementById('upgradeModal').classList.add('show'); }
+function closeUpgrade() { document.getElementById('upgradeModal').classList.remove('show'); }
+
+async function submitUpgrade() {
+  const ref = document.getElementById('payRef').value.trim();
+  if (!ref) { showToast('Enter payment reference', 'error'); return; }
+  const btn = document.getElementById('upgradeSubmitBtn');
+  btn.disabled = true; btn.innerHTML = '<div class="spinner"></div>';
+  try {
+    const data = await api('/api/bet/subscribe', 'POST', { payment_ref: ref, currency: 'USD' });
+    if (data.success) {
+      showToast('Premium activated! 🔥', 'success');
+      closeUpgrade();
+      await loadUser();
+    } else {
+      showToast(data.error || 'Failed', 'error');
+    }
+  } catch(e) { showToast('Network error', 'error'); }
+  finally { btn.disabled = false; btn.textContent = 'ACTIVATE PREMIUM'; }
+}
+
+function logout() {
+  localStorage.removeItem('betiq_token');
+  localStorage.removeItem('betiq_user');
+  window.location.href = 'login.html';
+}
+
+loadUser();
+</script>
+</body>
+</html>
