@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<title>Signals — SignalsBetIQ</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<script>(function(s){s.dataset.zone='9272446',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--bg:#040810;--card:#0a1120;--border:rgba(0,255,136,0.08);--green:#00ff88;--red:#ff3a3a;--blue:#0099ff;--gold:#ffc107;--text:#e0e8ff;--muted:#4a5a7a;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;overflow:hidden;}
+.grid-bg{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(0,255,136,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,136,0.02) 1px,transparent 1px);background-size:60px 60px;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;height:58px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:rgba(4,8,16,0.97);border-bottom:1px solid var(--border);}
+.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.08em;display:flex;align-items:center;gap:8px;}
+.nav-dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 1.5s ease-in-out infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.4;}}
+.nav-right{display:flex;align-items:center;gap:10px;}
+.plan-badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;letter-spacing:0.05em;}
+.badge-free{background:rgba(74,90,122,0.2);color:var(--muted);border:1px solid rgba(74,90,122,0.3);}
+.badge-premium{background:rgba(255,193,7,0.12);color:var(--gold);border:1px solid rgba(255,193,7,0.25);}
+.hamburger{width:36px;height:36px;border-radius:8px;background:rgba(255,255,255,0.04);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+
+/* DRAWER */
+.drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:150;display:none;backdrop-filter:blur(4px);}
+.drawer-overlay.show{display:block;}
+.drawer{position:fixed;top:0;right:-280px;width:280px;height:100%;background:#070d18;border-left:1px solid var(--border);z-index:160;transition:right 0.3s ease;padding:0;}
+.drawer.open{right:0;}
+.drawer-header{padding:20px 20px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.drawer-logo{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.08em;color:var(--text);}
+.drawer-close{width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,0.04);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.drawer-user{padding:16px 20px;border-bottom:1px solid var(--border);}
+.drawer-name{font-size:15px;font-weight:700;margin-bottom:4px;}
+.drawer-email{font-size:12px;color:var(--muted);}
+.drawer-links{padding:12px 0;}
+.drawer-link{display:flex;align-items:center;gap:14px;padding:14px 20px;font-size:14px;font-weight:600;color:var(--muted);text-decoration:none;transition:all 0.2s;cursor:pointer;border:none;background:none;font-family:'Syne',sans-serif;width:100%;letter-spacing:0.02em;}
+.drawer-link:hover,.drawer-link.active{color:var(--text);background:rgba(0,255,136,0.04);}
+.drawer-link.active{color:var(--green);border-left:2px solid var(--green);}
+.drawer-link svg{flex-shrink:0;}
+.drawer-divider{height:1px;background:var(--border);margin:8px 0;}
+.drawer-logout{color:var(--red)!important;}
+.drawer-upgrade{margin:16px 20px;padding:14px;border-radius:8px;background:linear-gradient(135deg,rgba(0,255,136,0.08),rgba(0,153,255,0.05));border:1px solid rgba(0,255,136,0.15);text-align:center;}
+.drawer-upgrade-title{font-size:13px;font-weight:700;color:var(--green);margin-bottom:6px;}
+.drawer-upgrade-sub{font-size:11px;color:var(--muted);margin-bottom:12px;line-height:1.5;}
+.drawer-upgrade-btn{display:block;background:var(--green);color:#000;padding:10px;border-radius:6px;font-size:12px;font-weight:700;text-decoration:none;letter-spacing:0.06em;}
+
+/* MAIN */
+.main{position:fixed;top:58px;bottom:0;left:0;right:0;overflow-y:auto;z-index:1;}
+.main::-webkit-scrollbar{display:none;}
+.inner{padding:14px;max-width:680px;margin:0 auto;padding-bottom:30px;}
+
+/* FILTER */
+.filter-row{display:flex;gap:8px;margin-bottom:14px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none;}
+.filter-row::-webkit-scrollbar{display:none;}
+.filter-btn{flex-shrink:0;padding:7px 14px;border-radius:6px;font-size:11px;font-weight:700;letter-spacing:0.06em;cursor:pointer;border:1px solid rgba(255,255,255,0.07);background:transparent;color:var(--muted);font-family:'Syne',sans-serif;transition:all 0.2s;-webkit-tap-highlight-color:transparent;}
+.filter-btn.active{background:rgba(0,255,136,0.08);border-color:rgba(0,255,136,0.3);color:var(--green);}
+
+/* SIGNAL CARD */
+.signal-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;position:relative;overflow:hidden;}
+.signal-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.signal-card.won::before{background:var(--green);}
+.signal-card.pending::before{background:var(--blue);}
+.signal-card.lost::before{background:var(--red);}
+.signal-card.premium-card::before{background:var(--gold);}
+
+.sig-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.sig-sport{font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);}
+.sig-badge{font-size:10px;font-weight:700;padding:3px 8px;border-radius:4px;letter-spacing:0.05em;}
+.sb-won{background:rgba(0,255,136,0.1);color:var(--green);}
+.sb-pending{background:rgba(0,153,255,0.1);color:var(--blue);}
+.sb-lost{background:rgba(255,58,58,0.1);color:var(--red);}
+.sb-premium{background:rgba(255,193,7,0.1);color:var(--gold);}
+
+.sig-match{font-size:15px;font-weight:700;margin-bottom:5px;line-height:1.3;}
+.sig-pred{font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.5;}
+.sig-pred.locked{color:rgba(255,255,255,0.1);filter:blur(5px);user-select:none;}
+
+/* BET CODES */
+.bet-codes{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+.bet-code{display:flex;align-items:center;gap:6px;background:rgba(0,255,136,0.05);border:1px solid rgba(0,255,136,0.12);border-radius:6px;padding:5px 10px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background 0.2s;}
+.bet-code:active{background:rgba(0,255,136,0.12);}
+.bet-code-platform{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:0.05em;text-transform:uppercase;}
+.bet-code-val{font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:600;color:var(--green);}
+.copy-icon{opacity:0.4;}
+
+.sig-bottom{display:flex;justify-content:space-between;align-items:center;}
+.sig-odds{font-family:'JetBrains Mono',monospace;font-size:20px;font-weight:600;}
+.sig-odds small{font-size:11px;color:var(--muted);font-family:'Syne',sans-serif;font-weight:400;}
+.sig-conf{display:flex;flex-direction:column;align-items:flex-end;gap:4px;}
+.conf-bar{width:70px;height:3px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;}
+.conf-fill{height:100%;border-radius:2px;background:var(--green);}
+.conf-txt{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+.sig-time{font-size:11px;color:var(--muted);margin-top:8px;font-family:'JetBrains Mono',monospace;}
+
+.lock-overlay{position:absolute;inset:0;background:rgba(4,8,16,0.8);backdrop-filter:blur(8px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;border-radius:12px;}
+.lock-title{font-size:12px;font-weight:700;color:var(--gold);letter-spacing:0.06em;}
+.lock-link{font-size:11px;color:var(--muted);text-decoration:underline;cursor:pointer;background:none;border:none;font-family:'Syne',sans-serif;}
+
+.empty-state{text-align:center;padding:60px 20px;color:var(--muted);}
+.loading{text-align:center;padding:40px;color:var(--muted);font-size:13px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(60px);background:#0a1120;border:1px solid var(--border);color:var(--text);padding:10px 18px;border-radius:8px;font-size:13px;font-weight:600;transition:transform 0.3s;z-index:300;white-space:nowrap;max-width:88vw;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.toast.success{border-color:rgba(0,255,136,0.3);color:var(--green);}
+.toast.error{border-color:rgba(255,58,58,0.3);color:var(--red);}
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<nav>
+  <div class="nav-logo"><div class="nav-dot"></div>BETIQ</div>
+  <div class="nav-right">
+    <span class="plan-badge badge-free" id="navBadge">FREE</span>
+    <div class="hamburger" onclick="openDrawer()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </div>
+  </div>
+</nav>
+
+<!-- DRAWER OVERLAY -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+
+<!-- DRAWER -->
+<div class="drawer" id="drawer">
+  <div class="drawer-header">
+    <div class="drawer-logo">SIGNALSBETIQ</div>
+    <div class="drawer-close" onclick="closeDrawer()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </div>
+  </div>
+  <div class="drawer-user">
+    <div class="drawer-name" id="drawerName">Loading...</div>
+    <div class="drawer-email" id="drawerEmail"></div>
+  </div>
+  <div class="drawer-links">
+    <a href="dashboard.html" class="drawer-link active">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Signals
+    </a>
+    <a href="community.html" class="drawer-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      Community
+    </a>
+    <a href="referral.html" class="drawer-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+      Referral
+    </a>
+    <a href="account.html" class="drawer-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Account
+    </a>
+    <div class="drawer-divider"></div>
+    <button class="drawer-link drawer-logout" onclick="logout()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Logout
+    </button>
+  </div>
+  <div class="drawer-upgrade" id="drawerUpgrade" style="display:none;">
+    <div class="drawer-upgrade-title">⚡ Go Premium</div>
+    <div class="drawer-upgrade-sub">Unlock all signals for just $1/week</div>
+    <a href="account.html" class="drawer-upgrade-btn">UPGRADE NOW</a>
+  </div>
+</div>
+
+<div class="main">
+  <div class="inner">
+    <div class="filter-row">
+      <button class="filter-btn active" onclick="filterSignals('all',this)">ALL</button>
+      <button class="filter-btn" onclick="filterSignals('football',this)">⚽ FOOTBALL</button>
+      <button class="filter-btn" onclick="filterSignals('basketball',this)">🏀 BASKETBALL</button>
+      <button class="filter-btn" onclick="filterSignals('tennis',this)">🎾 TENNIS</button>
+      <button class="filter-btn" onclick="filterSignals('casino',this)">🎰 CASINO</button>
+      <button class="filter-btn" onclick="filterSignals('aviator',this)">✈️ AVIATOR</button>
+    </div>
+    <div id="signalsList"><div class="loading">Loading signals...</div></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'https://sample-api-1-ryj7.onrender.com';
+const token = localStorage.getItem('betiq_token');
+let userData = null;
+
+if (!token) window.location.href = 'login.html';
+
+async function api(ep, method='GET', body=null) {
+  const opts = { method, headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` } };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(`${API}${ep}`, opts);
+  return res.json();
+}
+
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function openDrawer() {
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('drawerOverlay').classList.add('show');
+}
+function closeDrawer() {
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('drawerOverlay').classList.remove('show');
+}
+
+async function loadUser() {
+  try {
+    const data = await api('/api/bet/me');
+    if (!data.success) { logout(); return; }
+    userData = data.user;
+    const badge = document.getElementById('navBadge');
+    badge.textContent = userData.plan.toUpperCase();
+    badge.className = `plan-badge ${userData.is_premium ? 'badge-premium' : 'badge-free'}`;
+    document.getElementById('drawerName').textContent = userData.name;
+    document.getElementById('drawerEmail').textContent = userData.email || userData.phone || '';
+    if (!userData.is_premium) document.getElementById('drawerUpgrade').style.display = 'block';
+  } catch(e) { logout(); }
+}
+
+const BET_PLATFORMS = ['SportyBet', '1xBet', 'Bet9ja', 'MSport'];
+function generateBetCode(match, prediction) {
+  const words = match.split(/\s+/);
+  const base = words.filter(w => w.length > 2).map(w => w.substring(0,3).toUpperCase()).join('');
+  const pred = prediction.substring(0,4).toUpperCase().replace(/\s/g,'');
+  return `${base}-${pred}`;
+}
+
+async function loadSignals(category='all') {
+  const list = document.getElementById('signalsList');
+  list.innerHTML = '<div class="loading">Loading signals...</div>';
+  try {
+    const ep = category === 'all' ? '/api/bet/signals?limit=30' : `/api/bet/signals?category=${category}&limit=30`;
+    const data = await api(ep);
+    if (!data.signals) { list.innerHTML = '<div class="empty-state">Failed to load signals</div>'; return; }
+    renderSignals(data.signals, data.is_premium);
+  } catch(e) {
+    list.innerHTML = '<div class="empty-state">Network error. Pull to refresh.</div>';
+  }
+}
+
+function renderSignals(signals, isPremium) {
+  const list = document.getElementById('signalsList');
+  if (!signals.length) {
+    list.innerHTML = '<div class="empty-state"><div style="font-size:40px;margin-bottom:12px;">📊</div><div style="font-size:14px;line-height:1.6;">No signals yet for this category.<br/>Check back soon!</div></div>';
+    return;
+  }
+  const catEmoji = {football:'⚽',basketball:'🏀',tennis:'🎾',casino:'🎰',aviator:'✈️',other:'🎯'};
+  list.innerHTML = signals.map(s => {
+    const locked = s.locked && !isPremium;
+    const statusClass = s.status==='won'?'won':s.status==='lost'?'lost':s.is_premium?'premium-card':'pending';
+    const badge = s.status==='won'?'<span class="sig-badge sb-won">WON ✓</span>':
+                  s.status==='lost'?'<span class="sig-badge sb-lost">LOST</span>':
+                  s.is_premium?'<span class="sig-badge sb-premium">PREMIUM</span>':
+                  '<span class="sig-badge sb-pending">LIVE</span>';
+    const matchTime = s.match_time ? new Date(s.match_time).toLocaleDateString('en-NG',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '';
+    const code = generateBetCode(s.match_name, s.prediction);
+    const betCodesHTML = !locked && s.status === 'pending' ? `
+      <div class="bet-codes">
+        ${BET_PLATFORMS.slice(0,3).map(p => `
+          <div class="bet-code" onclick="copyCode('${p}','${code}')">
+            <span class="bet-code-platform">${p}</span>
+            <span class="bet-code-val">${code}</span>
+            <svg class="copy-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </div>
+        `).join('')}
+      </div>
+    ` : '';
+
+    return `
+      <div class="signal-card ${statusClass}">
+        <div class="sig-top">
+          <span class="sig-sport">${catEmoji[s.category]||'🎯'} ${(s.sport||s.category).toUpperCase()}</span>
+          ${badge}
+        </div>
+        <div class="sig-match">${s.match_name}</div>
+        <div class="sig-pred ${locked?'locked':''}">${locked?'Upgrade to see this prediction':s.prediction}</div>
+        ${betCodesHTML}
+        <div class="sig-bottom">
+          <div class="sig-odds">${s.odds||'—'} <small>odds</small></div>
+          <div class="sig-conf">
+            <div class="conf-bar"><div class="conf-fill" style="width:${s.confidence||0}%"></div></div>
+            <div class="conf-txt">${s.confidence?s.confidence+'% conf':'N/A'}</div>
+          </div>
+        </div>
+        ${matchTime?`<div class="sig-time">🕐 ${matchTime}</div>`:''}
+        ${locked?`<div class="lock-overlay"><div class="lock-title">🔒 PREMIUM ONLY</div><button class="lock-link" onclick="window.location.href='account.html'">Upgrade $1/week →</button></div>`:''}
+      </div>
+    `;
+  }).join('');
+}
+
+function copyCode(platform, code) {
+  navigator.clipboard.writeText(code).catch(()=>{
+    const el=document.createElement('textarea');el.value=code;
+    document.body.appendChild(el);el.select();document.execCommand('copy');document.body.removeChild(el);
+  });
+  showToast(`${platform} code copied! 📋`,'success');
+}
+
+function filterSignals(cat, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  loadSignals(cat);
+}
+
+function logout() {
+  localStorage.removeItem('betiq_token');
+  localStorage.removeItem('betiq_user');
+  window.location.href = 'login.html';
+}
+
+loadUser();
+loadSignals();
+</script>
+</body>
+</html>
