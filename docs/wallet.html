@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1"/>
+<title>Wallet — SignalsBetIQ</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Syne:wght@400;600;700&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{--bg:#040810;--card:#0a1120;--border:rgba(0,255,136,0.08);--green:#00ff88;--red:#ff3a3a;--blue:#0099ff;--gold:#ffc107;--text:#e0e8ff;--muted:#4a5a7a;}
+html,body{background:var(--bg);color:var(--text);font-family:'Syne',sans-serif;min-height:100%;}
+.grid-bg{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(0,255,136,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,136,0.02) 1px,transparent 1px);background-size:60px 60px;}
+
+/* NAV */
+.topbar{position:sticky;top:0;z-index:10;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:rgba(4,8,16,0.97);border-bottom:1px solid var(--border);}
+.topbar-left{display:flex;align-items:center;gap:10px;}
+.back-btn{width:34px;height:34px;border-radius:8px;background:rgba(255,255,255,0.04);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;-webkit-tap-highlight-color:transparent;}
+.topbar-title{font-size:16px;font-weight:700;}
+.hamburger{width:36px;height:36px;border-radius:8px;background:rgba(255,255,255,0.04);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent;}
+
+/* DRAWER */
+.drawer-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:150;display:none;backdrop-filter:blur(4px);}
+.drawer-overlay.show{display:block;}
+.drawer{position:fixed;top:0;right:-280px;width:280px;height:100%;background:#070d18;border-left:1px solid var(--border);z-index:160;transition:right 0.3s ease;}
+.drawer.open{right:0;}
+.drawer-header{padding:20px 20px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.drawer-logo{font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:0.08em;}
+.drawer-close{width:32px;height:32px;border-radius:8px;background:rgba(255,255,255,0.04);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer;}
+.drawer-user{padding:16px 20px;border-bottom:1px solid var(--border);}
+.drawer-name{font-size:15px;font-weight:700;margin-bottom:4px;}
+.drawer-email{font-size:12px;color:var(--muted);}
+.drawer-links{padding:12px 0;}
+.drawer-link{display:flex;align-items:center;gap:14px;padding:14px 20px;font-size:14px;font-weight:600;color:var(--muted);text-decoration:none;transition:all 0.2s;border:none;background:none;font-family:'Syne',sans-serif;width:100%;letter-spacing:0.02em;cursor:pointer;}
+.drawer-link.active{color:var(--green);border-left:2px solid var(--green);}
+.drawer-divider{height:1px;background:var(--border);margin:8px 0;}
+.drawer-logout{color:var(--red)!important;}
+
+/* CONTENT */
+.content{padding:16px;max-width:480px;margin:0 auto;padding-bottom:40px;position:relative;z-index:1;}
+
+/* BALANCE HERO */
+.balance-hero{background:linear-gradient(135deg,rgba(0,255,136,0.08),rgba(0,153,255,0.04));border:1px solid rgba(0,255,136,0.15);border-radius:18px;padding:24px;margin-bottom:14px;text-align:center;}
+.balance-label{font-size:11px;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:8px;}
+.balance-amount{font-family:'Bebas Neue',sans-serif;font-size:52px;letter-spacing:0.02em;color:var(--green);margin-bottom:4px;line-height:1;}
+.balance-sub{font-size:12px;color:var(--muted);}
+.balance-breakdown{display:flex;gap:12px;margin-top:16px;}
+.bal-item{flex:1;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:10px;padding:10px;text-align:center;}
+.bal-item-label{font-size:10px;color:var(--muted);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:4px;}
+.bal-item-val{font-family:'JetBrains Mono',monospace;font-size:16px;font-weight:600;}
+.bal-item-val.green{color:var(--green);}
+.bal-item-val.gold{color:var(--gold);}
+
+/* ACTION BUTTONS */
+.action-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
+.action-btn{padding:14px;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Syne',sans-serif;letter-spacing:0.05em;display:flex;align-items:center;justify-content:center;gap:8px;border:none;transition:opacity 0.2s;-webkit-tap-highlight-color:transparent;}
+.action-btn:active{opacity:0.8;}
+.btn-deposit{background:linear-gradient(135deg,var(--green),#00cc70);color:#000;}
+.btn-withdraw{background:rgba(255,255,255,0.04);color:var(--text);border:1px solid var(--border);}
+
+/* TABS */
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border);margin-bottom:16px;}
+.tab{flex:1;padding:12px;font-size:12px;font-weight:700;letter-spacing:0.06em;cursor:pointer;color:var(--muted);border-bottom:2px solid transparent;transition:all 0.2s;background:none;border-top:none;border-left:none;border-right:none;font-family:'Syne',sans-serif;text-align:center;}
+.tab.active{color:var(--green);border-bottom-color:var(--green);}
+
+/* PANELS */
+.panel{display:none;}
+.panel.active{display:block;}
+
+/* FORM */
+.form-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;margin-bottom:14px;}
+.form-label{font-size:11px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:8px;}
+.form-input{width:100%;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:13px 16px;color:var(--text);font-family:'Syne',sans-serif;font-size:14px;outline:none;margin-bottom:14px;transition:border-color 0.2s;}
+.form-input:focus{border-color:rgba(0,255,136,0.4);}
+.form-input::placeholder{color:var(--muted);}
+select.form-input{cursor:pointer;}
+select.form-input option{background:var(--card);}
+.form-hint{font-size:12px;color:var(--muted);margin-bottom:14px;line-height:1.6;padding:10px 14px;background:rgba(255,255,255,0.02);border-radius:8px;border:1px solid rgba(255,255,255,0.04);}
+.form-hint strong{color:var(--green);}
+.method-toggle{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+.method-opt{padding:12px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:transparent;color:var(--muted);font-family:'Syne',sans-serif;font-size:13px;font-weight:600;cursor:pointer;text-align:center;transition:all 0.2s;-webkit-tap-highlight-color:transparent;}
+.method-opt.active{background:rgba(0,255,136,0.08);border-color:rgba(0,255,136,0.3);color:var(--green);}
+.dynamic-fields{display:none;}
+.dynamic-fields.show{display:block;}
+.submit-btn{width:100%;padding:15px;border-radius:10px;border:none;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:0.06em;transition:opacity 0.2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.submit-btn:active{opacity:0.8;}
+.submit-btn:disabled{opacity:0.4;}
+.btn-green{background:linear-gradient(135deg,var(--green),#00cc70);color:#000;}
+.btn-teal{background:linear-gradient(135deg,#00d4aa,#00aa88);color:#000;}
+
+/* SOURCE TOGGLE */
+.source-toggle{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+.source-opt{padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:transparent;color:var(--muted);font-family:'Syne',sans-serif;font-size:12px;font-weight:600;cursor:pointer;text-align:center;transition:all 0.2s;}
+.source-opt.active{background:rgba(255,193,7,0.08);border-color:rgba(255,193,7,0.3);color:var(--gold);}
+
+/* TRANSACTIONS */
+.txn-item{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+.txn-item:last-child{border-bottom:none;}
+.txn-icon{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ti-deposit{background:rgba(0,255,136,0.1);}
+.ti-withdrawal{background:rgba(255,58,58,0.1);}
+.ti-referral{background:rgba(255,193,7,0.1);}
+.ti-stake{background:rgba(0,153,255,0.1);}
+.txn-info{flex:1;}
+.txn-title{font-size:14px;font-weight:600;margin-bottom:2px;}
+.txn-sub{font-size:11px;color:var(--muted);}
+.txn-right{text-align:right;}
+.txn-amount{font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:600;}
+.txn-amount.credit{color:var(--green);}
+.txn-amount.debit{color:var(--red);}
+.txn-status{font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;margin-top:3px;display:inline-block;}
+.status-pending{background:rgba(255,193,7,0.1);color:var(--gold);}
+.status-completed{background:rgba(0,255,136,0.1);color:var(--green);}
+.status-rejected{background:rgba(255,58,58,0.1);color:var(--red);}
+
+.empty-state{text-align:center;padding:40px 20px;color:var(--muted);}
+.loading{text-align:center;padding:30px;color:var(--muted);font-size:13px;}
+
+/* DEPOSIT INFO CARD */
+.info-box{background:rgba(0,153,255,0.04);border:1px solid rgba(0,153,255,0.15);border-radius:10px;padding:14px 16px;margin-bottom:14px;}
+.info-box-title{font-size:12px;font-weight:700;color:var(--blue);margin-bottom:8px;letter-spacing:0.06em;}
+.info-box-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.04);}
+.info-box-row:last-child{border-bottom:none;}
+.info-box-key{font-size:12px;color:var(--muted);}
+.info-box-val{font-size:12px;font-weight:600;font-family:'JetBrains Mono',monospace;color:var(--text);}
+.copy-val{cursor:pointer;color:var(--blue);text-decoration:underline;}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(60px);background:#0a1120;border:1px solid var(--border);color:var(--text);padding:10px 18px;border-radius:8px;font-size:13px;font-weight:600;transition:transform 0.3s;z-index:300;white-space:nowrap;max-width:88vw;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.toast.success{border-color:rgba(0,255,136,0.3);color:var(--green);}
+.toast.error{border-color:rgba(255,58,58,0.3);color:var(--red);}
+.spinner{width:16px;height:16px;border:2px solid rgba(0,0,0,0.3);border-top-color:#000;border-radius:50%;animation:spin 0.7s linear infinite;display:inline-block;}
+@keyframes spin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<!-- DRAWER -->
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<div class="drawer" id="drawer">
+  <div class="drawer-header">
+    <div class="drawer-logo">SIGNALSBETIQ</div>
+    <div class="drawer-close" onclick="closeDrawer()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </div>
+  </div>
+  <div class="drawer-user">
+    <div class="drawer-name" id="drawerName">Loading...</div>
+    <div class="drawer-email" id="drawerEmail"></div>
+  </div>
+  <div class="drawer-links">
+    <a href="dashboard.html" class="drawer-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Signals
+    </a>
+    <a href="community.html" class="drawer-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Community
+    </a>
+    <a href="wallet.html" class="drawer-link active">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>Wallet
+    </a>
+    <a href="referral.html" class="drawer-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>Referral
+    </a>
+    <a href="account.html" class="drawer-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Account
+    </a>
+    <div class="drawer-divider"></div>
+    <button class="drawer-link drawer-logout" onclick="logout()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Logout
+    </button>
+  </div>
+</div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar-left">
+    <div class="back-btn" onclick="history.back()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+    </div>
+    <div class="topbar-title">Wallet</div>
+  </div>
+  <div class="hamburger" onclick="openDrawer()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- BALANCE HERO -->
+  <div class="balance-hero">
+    <div class="balance-label">Total Balance</div>
+    <div class="balance-amount">₦<span id="totalBalance">0.00</span></div>
+    <div class="balance-sub">Available to withdraw</div>
+    <div class="balance-breakdown">
+      <div class="bal-item">
+        <div class="bal-item-label">Main Wallet</div>
+        <div class="bal-item-val green">₦<span id="mainBalance">0.00</span></div>
+      </div>
+      <div class="bal-item">
+        <div class="bal-item-label">Referral</div>
+        <div class="bal-item-val gold">₦<span id="refBalance">0.00</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACTION BUTTONS -->
+  <div class="action-row">
+    <button class="action-btn btn-deposit" onclick="switchTab('deposit')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>
+      Deposit
+    </button>
+    <button class="action-btn btn-withdraw" onclick="switchTab('withdraw')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>
+      Withdraw
+    </button>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" id="tabHistory" onclick="switchTab('history')">HISTORY</button>
+    <button class="tab" id="tabDeposit" onclick="switchTab('deposit')">DEPOSIT</button>
+    <button class="tab" id="tabWithdraw" onclick="switchTab('withdraw')">WITHDRAW</button>
+  </div>
+
+  <!-- HISTORY PANEL -->
+  <div class="panel active" id="panelHistory">
+    <div id="txnList"><div class="loading">Loading transactions...</div></div>
+  </div>
+
+  <!-- DEPOSIT PANEL -->
+  <div class="panel" id="panelDeposit">
+
+    <!-- Payment details -->
+    <div class="info-box">
+      <div class="info-box-title">📋 PAYMENT DETAILS</div>
+      <div class="info-box-row">
+        <span class="info-box-key">Bank</span>
+        <span class="info-box-val">Opay</span>
+      </div>
+      <div class="info-box-row">
+        <span class="info-box-key">Account Number</span>
+        <span class="info-box-val copy-val" onclick="copyText('8108812188')">8108812188 📋</span>
+      </div>
+      <div class="info-box-row">
+        <span class="info-box-key">Account Name</span>
+        <span class="info-box-val">SignalsBetIQ</span>
+      </div>
+      <div class="info-box-row">
+        <span class="info-box-key">USDT TRC20</span>
+        <span class="info-box-val copy-val" style="font-size:10px;" onclick="copyText('TYourCryptoAddressHere')">TYour...Here 📋</span>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <div class="form-label">Payment Method</div>
+      <div class="method-toggle">
+        <button class="method-opt active" id="depMethodBank" onclick="setDepMethod('bank')">🏦 Bank Transfer</button>
+        <button class="method-opt" id="depMethodCrypto" onclick="setDepMethod('crypto')">💎 Crypto (USDT)</button>
+      </div>
+
+      <div class="form-label">Amount (₦)</div>
+      <input type="number" class="form-input" id="depAmount" placeholder="Min ₦100" min="100"/>
+
+      <div class="form-label">Payment Reference / Transaction ID</div>
+      <input type="text" class="form-input" id="depRef" placeholder="Enter your transaction reference"/>
+
+      <div class="form-hint">
+        1. Send payment to the account details above<br/>
+        2. Enter the amount and your transaction reference below<br/>
+        3. Admin will confirm within <strong>30 minutes</strong> ⚡
+      </div>
+
+      <button class="submit-btn btn-green" id="depBtn" onclick="submitDeposit()">
+        SUBMIT DEPOSIT
+      </button>
+    </div>
+  </div>
+
+  <!-- WITHDRAW PANEL -->
+  <div class="panel" id="panelWithdraw">
+    <div class="form-card">
+
+      <div class="form-label">Withdraw From</div>
+      <div class="source-toggle">
+        <button class="source-opt active" id="srcMain" onclick="setSource('balance')">💳 Main Wallet</button>
+        <button class="source-opt" id="srcRef" onclick="setSource('ref_balance')">🔗 Referral</button>
+      </div>
+
+      <div class="form-label">Withdrawal Method</div>
+      <div class="method-toggle">
+        <button class="method-opt active" id="wdMethodBank" onclick="setWdMethod('bank')">🏦 Bank</button>
+        <button class="method-opt" id="wdMethodCrypto" onclick="setWdMethod('crypto')">💎 Crypto</button>
+      </div>
+
+      <div class="form-label">Amount (₦)</div>
+      <input type="number" class="form-input" id="wdAmount" placeholder="Min ₦500"/>
+
+      <!-- Bank fields -->
+      <div class="dynamic-fields show" id="bankFields">
+        <div class="form-label">Bank Name</div>
+        <select class="form-input" id="wdBankName">
+          <option value="">Select Bank</option>
+          <option>Opay</option>
+          <option>Palmpay</option>
+          <option>GTBank</option>
+          <option>Access Bank</option>
+          <option>First Bank</option>
+          <option>UBA</option>
+          <option>Zenith Bank</option>
+          <option>Kuda</option>
+          <option>Moniepoint</option>
+          <option>Other</option>
+        </select>
+        <div class="form-label">Account Number</div>
+        <input type="text" class="form-input" id="wdAccountNum" placeholder="10-digit account number" maxlength="10"/>
+        <div class="form-label">Account Name</div>
+        <input type="text" class="form-input" id="wdAccountName" placeholder="Your account name"/>
+      </div>
+
+      <!-- Crypto fields -->
+      <div class="dynamic-fields" id="cryptoFields">
+        <div class="form-label">Crypto Type</div>
+        <select class="form-input" id="wdCryptoType">
+          <option value="USDT_TRC20">USDT TRC20</option>
+          <option value="USDT_ERC20">USDT ERC20</option>
+          <option value="BTC">Bitcoin (BTC)</option>
+        </select>
+        <div class="form-label">Wallet Address</div>
+        <input type="text" class="form-input" id="wdCryptoAddr" placeholder="Enter your wallet address"/>
+        <div class="form-hint">Equivalent USDT amount will be calculated at current rate (₦1,600 = $1)</div>
+      </div>
+
+      <button class="submit-btn btn-teal" id="wdBtn" onclick="submitWithdraw()">
+        SUBMIT WITHDRAWAL
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const API = 'https://sample-api-1-ryj7.onrender.com';
+const token = localStorage.getItem('betiq_token');
+if (!token) window.location.href = 'login.html';
+
+let userData = null;
+let depMethod = 'bank';
+let wdMethod = 'bank';
+let wdSource = 'balance';
+
+function showToast(msg, type='success') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function openDrawer() {
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('drawerOverlay').classList.add('show');
+}
+function closeDrawer() {
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('drawerOverlay').classList.remove('show');
+}
+function logout() {
+  localStorage.removeItem('betiq_token');
+  localStorage.removeItem('betiq_user');
+  window.location.href = 'login.html';
+}
+
+async function apiFetch(ep, method='GET', body=null) {
+  const opts = { method, headers: { 'Content-Type':'application/json','Authorization':`Bearer ${token}` } };
+  if (body) opts.body = JSON.stringify(body);
+  return (await fetch(`${API}${ep}`, opts)).json();
+}
+
+function copyText(text) {
+  navigator.clipboard.writeText(text).catch(() => {
+    const el = document.createElement('textarea');
+    el.value = text; document.body.appendChild(el); el.select();
+    document.execCommand('copy'); document.body.removeChild(el);
+  });
+  showToast('Copied! 📋');
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById(`panel${tab.charAt(0).toUpperCase()+tab.slice(1)}`).classList.add('active');
+  const tabEl = document.getElementById(`tab${tab.charAt(0).toUpperCase()+tab.slice(1)}`);
+  if (tabEl) tabEl.classList.add('active');
+  if (tab === 'history') loadTransactions();
+}
+
+function setDepMethod(method) {
+  depMethod = method;
+  document.getElementById('depMethodBank').classList.toggle('active', method === 'bank');
+  document.getElementById('depMethodCrypto').classList.toggle('active', method === 'crypto');
+}
+
+function setWdMethod(method) {
+  wdMethod = method;
+  document.getElementById('wdMethodBank').classList.toggle('active', method === 'bank');
+  document.getElementById('wdMethodCrypto').classList.toggle('active', method === 'crypto');
+  document.getElementById('bankFields').classList.toggle('show', method === 'bank');
+  document.getElementById('cryptoFields').classList.toggle('show', method === 'crypto');
+}
+
+function setSource(source) {
+  wdSource = source;
+  document.getElementById('srcMain').classList.toggle('active', source === 'balance');
+  document.getElementById('srcRef').classList.toggle('active', source === 'ref_balance');
+}
+
+async function loadUser() {
+  try {
+    const data = await apiFetch('/api/bet/me');
+    if (!data.success) { logout(); return; }
+    userData = data.user;
+    document.getElementById('drawerName').textContent = userData.name;
+    document.getElementById('drawerEmail').textContent = userData.email || userData.phone || '';
+    document.getElementById('totalBalance').textContent = (userData.total_balance || 0).toFixed(2);
+    document.getElementById('mainBalance').textContent = (userData.balance || 0).toFixed(2);
+    document.getElementById('refBalance').textContent = (userData.ref_balance || 0).toFixed(2);
+  } catch(e) { logout(); }
+}
+
+async function loadTransactions() {
+  const list = document.getElementById('txnList');
+  list.innerHTML = '<div class="loading">Loading...</div>';
+  try {
+    const data = await apiFetch('/api/bet/wallet/transactions?limit=30');
+    if (!data.success) return;
+    const txns = data.transactions || [];
+    if (!txns.length) {
+      list.innerHTML = '<div class="empty-state"><div style="font-size:36px;margin-bottom:10px;">📭</div><div style="font-size:13px;">No transactions yet</div></div>';
+      return;
+    }
+    const icons = { deposit:'⬇️', withdrawal:'⬆️', referral:'🔗', stake_profit:'📈', stake_loss:'📉' };
+    const iconBg = { deposit:'ti-deposit', withdrawal:'ti-withdrawal', referral:'ti-referral', stake_profit:'ti-stake', stake_loss:'ti-stake' };
+    const isCredit = t => ['deposit','referral','stake_profit'].includes(t);
+
+    list.innerHTML = txns.map(t => `
+      <div class="txn-item">
+        <div class="txn-icon ${iconBg[t.type]||'ti-deposit'}">${icons[t.type]||'💳'}</div>
+        <div class="txn-info">
+          <div class="txn-title">${t.type.replace(/_/g,' ').replace(/\b\w/g,l=>l.toUpperCase())}</div>
+          <div class="txn-sub">${t.method ? t.method.toUpperCase() : ''} · ${new Date(t.created_at).toLocaleDateString('en-NG',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'})}</div>
+        </div>
+        <div class="txn-right">
+          <div class="txn-amount ${isCredit(t.type)?'credit':'debit'}">${isCredit(t.type)?'+':'-'}₦${parseFloat(t.amount).toFixed(2)}</div>
+          <span class="txn-status status-${t.status}">${t.status.toUpperCase()}</span>
+        </div>
+      </div>
+    `).join('');
+  } catch(e) { list.innerHTML = '<div class="loading">Failed to load</div>'; }
+}
+
+async function submitDeposit() {
+  const amount = parseFloat(document.getElementById('depAmount').value);
+  const ref = document.getElementById('depRef').value.trim();
+  const btn = document.getElementById('depBtn');
+
+  if (!amount || amount < 100) { showToast('Minimum deposit is ₦100', 'error'); return; }
+  if (!ref) { showToast('Enter your payment reference', 'error'); return; }
+
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div>';
+
+  try {
+    const key = `dep-${Date.now()}-${Math.random().toString(36).substr(2,9)}`;
+    const data = await apiFetch('/api/bet/wallet/deposit', 'POST', {
+      amount, payment_ref: ref, method: depMethod, idempotency_key: key
+    });
+    if (data.success) {
+      showToast(data.message, 'success');
+      document.getElementById('depAmount').value = '';
+      document.getElementById('depRef').value = '';
+      switchTab('history');
+      await loadUser();
+    } else {
+      showToast(data.error || 'Failed', 'error');
+    }
+  } catch(e) { showToast('Network error', 'error'); }
+  finally { btn.disabled = false; btn.textContent = 'SUBMIT DEPOSIT'; }
+}
+
+async function submitWithdraw() {
+  const amount = parseFloat(document.getElementById('wdAmount').value);
+  const btn = document.getElementById('wdBtn');
+
+  if (!amount || amount < 500) { showToast('Minimum withdrawal is ₦500', 'error'); return; }
+
+  const currentBal = wdSource === 'balance' ? (userData?.balance || 0) : (userData?.ref_balance || 0);
+  if (amount > currentBal) { showToast('Insufficient balance', 'error'); return; }
+
+  const body = { amount, method: wdMethod, source: wdSource };
+
+  if (wdMethod === 'bank') {
+    body.bank_name = document.getElementById('wdBankName').value;
+    body.account_number = document.getElementById('wdAccountNum').value.trim();
+    body.account_name = document.getElementById('wdAccountName').value.trim();
+    if (!body.bank_name || !body.account_number || !body.account_name) {
+      showToast('Fill all bank details', 'error'); return;
+    }
+    if (body.account_number.length !== 10) {
+      showToast('Account number must be 10 digits', 'error'); return;
+    }
+  } else {
+    body.crypto_address = document.getElementById('wdCryptoAddr').value.trim();
+    body.crypto_type = document.getElementById('wdCryptoType').value;
+    if (!body.crypto_address) { showToast('Enter wallet address', 'error'); return; }
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<div class="spinner"></div>';
+
+  try {
+    const key = `wd-${Date.now()}-${Math.random().toString(36).substr(2,9)}`;
+    body.idempotency_key = key;
+    const data = await apiFetch('/api/bet/wallet/withdraw', 'POST', body);
+    if (data.success) {
+      showToast(data.message, 'success');
+      if (data.usdt_amount) showToast(`≈ $${data.usdt_amount} USDT`, 'success');
+      document.getElementById('wdAmount').value = '';
+      switchTab('history');
+      await loadUser();
+    } else {
+      showToast(data.error || 'Failed', 'error');
+    }
+  } catch(e) { showToast('Network error', 'error'); }
+  finally { btn.disabled = false; btn.textContent = 'SUBMIT WITHDRAWAL'; }
+}
+
+// Init
+loadUser();
+loadTransactions();
+</script>
+</body>
+</html>
